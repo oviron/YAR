@@ -1,6 +1,7 @@
 package com.oviron.yar;
 
 import java.math.BigInteger;
+import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
@@ -34,6 +35,16 @@ public class Primitives {
     public static BigInteger RSADP(RSAPrivateKey privateKey, BigInteger c) {
         if (c.compareTo(BigInteger.ZERO) < 0 || c.compareTo(privateKey.getModulus().subtract(BigInteger.ONE)) > 0) {
             throw new IllegalArgumentException("Ciphertext representative out of range");
+        }
+
+        if (privateKey instanceof RSAPrivateCrtKey) {
+            RSAPrivateCrtKey pk = (RSAPrivateCrtKey) privateKey;
+
+            BigInteger m1 = c.modPow(pk.getPrimeExponentP(), pk.getPrimeP());
+            BigInteger m2 = c.modPow(pk.getPrimeExponentQ(), pk.getPrimeQ());
+            BigInteger h = m1.subtract(m2).multiply(pk.getCrtCoefficient()).mod(pk.getPrimeP());
+
+            return m2.add(h.multiply(pk.getPrimeQ()));
         }
 
         return c.modPow(privateKey.getPrivateExponent(), privateKey.getModulus());
@@ -82,9 +93,9 @@ public class Primitives {
             System.arraycopy(result, 0, b, k - result.length, result.length);
             result = b;
         } else if (result.length > k) {
-            for (int i = 0; i < result.length - k; i++) {
-                if (result[i] != 0x00) throw new IllegalArgumentException("Integer too large");
-            }
+            for (int i = 0; i < result.length - k; i++)
+                if (result[i] != 0x00)
+                    throw new IllegalArgumentException("Integer too large");
             byte[] b = new byte[k];
             System.arraycopy(result, result.length - k, b, 0, k);
             result = b;

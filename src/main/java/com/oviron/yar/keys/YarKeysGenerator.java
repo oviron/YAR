@@ -37,7 +37,7 @@ public class YarKeysGenerator {
         BigInteger e = BigInteger.valueOf(65537);
         BigInteger d = e.modInverse(phi);
 
-        return new YarKeyPair(n, d, e);
+        return new YarKeyPair(n, d, e, p, q);
     }
 
     private static class PrimeNumComputation implements Callable<BigInteger> {
