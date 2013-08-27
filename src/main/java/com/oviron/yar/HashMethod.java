@@ -1,5 +1,10 @@
 package com.oviron.yar;
 
+/**
+ * A set of hashing algorithms available for RSA signature scheme.
+ *
+ * @author Oviron
+ */
 public enum HashMethod {
     MD2("MD2", new byte[]{
             (byte) 0x30, (byte) 0x20, (byte) 0x30, (byte) 0x0c,
