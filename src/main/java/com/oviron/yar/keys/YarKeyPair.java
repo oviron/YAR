@@ -1,25 +1,27 @@
 package com.oviron.yar.keys;
 
-import java.math.BigInteger;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 
 /**
- * @author: Oviron
+ * Class containing pair of RSA private and public keys.
+ *
+ * @author Oviron
  */
-
 public class YarKeyPair {
-    private final YarPublicKey yarPublicKey;
-    private final YarPrivateKey yarPrivateKey;
+    private final RSAPublicKey publicKey;
+    private final RSAPrivateKey privateKey;
 
-    public YarKeyPair(BigInteger n, BigInteger d, BigInteger e, BigInteger p, BigInteger q) {
-        yarPublicKey = new YarPublicKey(n, e);
-        yarPrivateKey = new YarPrivateKey(d, e, p, q);
+    public YarKeyPair(RSAPublicKey publicKey, RSAPrivateKey privateKey) {
+        this.publicKey = publicKey;
+        this.privateKey = privateKey;
     }
 
-    public YarPrivateKey getPrivateKey() {
-        return yarPrivateKey;
+    public RSAPublicKey getPublicKey() {
+        return publicKey;
     }
 
-    public YarPublicKey getPublicKey() {
-        return yarPublicKey;
+    public RSAPrivateKey getPrivateKey() {
+        return privateKey;
     }
 }

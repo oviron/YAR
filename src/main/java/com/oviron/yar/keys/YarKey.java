@@ -5,16 +5,17 @@ import java.security.Key;
 import java.security.interfaces.RSAKey;
 
 /**
- * @author: Oviron
+ * A base abstract class for both public and private RSA keys.
+ *
+ * @author Oviron
  */
-
 abstract class YarKey implements Key, RSAKey {
-    private final BigInteger modulus;
-    protected final BigInteger exponent;
+    final BigInteger n;
+    final BigInteger e;
 
-    YarKey(BigInteger modulus, BigInteger exponent) {
-        this.modulus = modulus;
-        this.exponent = exponent;
+    YarKey(BigInteger n, BigInteger e) {
+        this.n = n;
+        this.e = e;
     }
 
     @Override
@@ -29,6 +30,18 @@ abstract class YarKey implements Key, RSAKey {
 
     @Override
     public BigInteger getModulus() {
-        return modulus;
+        return n;
+    }
+
+    public BigInteger getPublicExponent() {
+        return e;
+    }
+
+    public boolean equals(Object obj) {
+        return super.equals(obj)
+                || (obj != null
+                && obj instanceof RSAKey
+                && n.equals(((RSAKey) obj).getModulus()));
+
     }
 }

@@ -2,33 +2,31 @@ package com.oviron.yar.keys;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.util.Arrays;
 
-import static com.oviron.yar.Util.BA2I;
-import static com.oviron.yar.Util.I2BA;
-
 /**
- * @author: Oviron
+ * @author Oviron
  */
 
 public class YarPrivateKey extends YarKey implements RSAPrivateCrtKey {
-    private final BigInteger publicExponent;
-    private final BigInteger primeP;
-    private final BigInteger primeQ;
-    private final BigInteger primeExpP;
-    private final BigInteger primeExpQ;
+    private final BigInteger p;
+    private final BigInteger q;
+    private final BigInteger d;
+    private final BigInteger dP;
+    private final BigInteger dQ;
     private final BigInteger qInv;
 
-    public YarPrivateKey(BigInteger privateExponent, BigInteger publicExponent, BigInteger primeP, BigInteger primeQ) {
-        super(primeP.multiply(primeQ), privateExponent);
-        this.publicExponent = publicExponent;
-        this.primeP = primeP;
-        this.primeQ = primeQ;
-        this.primeExpP = privateExponent.remainder(primeP.subtract(BigInteger.ONE));
-        this.primeExpQ = privateExponent.remainder(primeQ.subtract(BigInteger.ONE));
-        this.qInv = primeQ.modInverse(primeP);
+    public YarPrivateKey(BigInteger p, BigInteger q, BigInteger e, BigInteger d) {
+        super(q.multiply(p), e);
+        this.d = d;
+        this.p = p;
+        this.q = q;
+        this.dP = d.remainder(p.subtract(BigInteger.ONE));
+        this.dQ = d.remainder(q.subtract(BigInteger.ONE));
+        this.qInv = q.modInverse(p);
     }
 
     public static YarPrivateKey valueOf(byte[] encoded) {
@@ -44,70 +42,65 @@ public class YarPrivateKey extends YarKey implements RSAPrivateCrtKey {
         int l;
         byte[] buffer;
 
-        BigInteger publicExponent;
-        BigInteger privateExponent;
-        BigInteger primeP;
-        BigInteger primeQ;
+        BigInteger e;
+        BigInteger d;
+        BigInteger p;
+        BigInteger q;
 
-        //privateExponent
-        l = BA2I(Arrays.copyOfRange(encoded, i, i + 4));
+        //p
+        l = ByteBuffer.wrap(Arrays.copyOfRange(encoded, i, i + 4)).getInt();
         i += 4;
         buffer = Arrays.copyOfRange(encoded, i, i + l);
-        privateExponent = new BigInteger(buffer);
+        p = new BigInteger(buffer);
         i += l;
 
-        //publicExponent
-        l = BA2I(Arrays.copyOfRange(encoded, i, i + 4));
+        //q
+        l = ByteBuffer.wrap(Arrays.copyOfRange(encoded, i, i + 4)).getInt();
         i += 4;
         buffer = Arrays.copyOfRange(encoded, i, i + l);
-        publicExponent = new BigInteger(buffer);
+        q = new BigInteger(buffer);
         i += l;
 
-        //primeP
-        l = BA2I(Arrays.copyOfRange(encoded, i, i + 4));
+        //e
+        l = ByteBuffer.wrap(Arrays.copyOfRange(encoded, i, i + 4)).getInt();
         i += 4;
         buffer = Arrays.copyOfRange(encoded, i, i + l);
-        primeP = new BigInteger(buffer);
+        e = new BigInteger(buffer);
         i += l;
 
-        //primeQ
-        l = BA2I(Arrays.copyOfRange(encoded, i, i + 4));
+        //d
+        l = ByteBuffer.wrap(Arrays.copyOfRange(encoded, i, i + 4)).getInt();
         i += 4;
         buffer = Arrays.copyOfRange(encoded, i, i + l);
-        primeQ = new BigInteger(buffer);
+        d = new BigInteger(buffer);
         i += l;
 
-        return new YarPrivateKey(privateExponent, publicExponent, primeP, primeQ);
+        return new YarPrivateKey(p, q, e, d);
     }
 
     @Override
     public BigInteger getPrivateExponent() {
-        return exponent;
-    }
-
-    @Override
-    public BigInteger getPublicExponent() {
-        return publicExponent;
+        return d;
     }
 
     @Override
     public BigInteger getPrimeP() {
-        return primeP;
+        return p;
     }
 
     @Override
     public BigInteger getPrimeQ() {
-        return primeQ;
+        return q;
     }
 
     @Override
     public BigInteger getPrimeExponentP() {
-        return primeExpP;
+        return dP;
     }
 
     @Override
     public BigInteger getPrimeExponentQ() {
-        return primeExpQ;
+        return dQ;
     }
 
     @Override
@@ -126,27 +119,27 @@ public class YarPrivateKey extends YarKey implements RSAPrivateCrtKey {
         baos.write(0x41); //A
         baos.write(0x4b); //Private (K)ey
 
-        //privateExponent
-        buffer = exponent.toByteArray();
-        l = I2BA(buffer.length);
+        //p
+        buffer = p.toByteArray();
+        l = ByteBuffer.allocate(4).putInt(buffer.length).array();
         baos.write(l, 0, l.length);
         baos.write(buffer, 0, buffer.length);
 
-        //publicExponent
-        buffer = publicExponent.toByteArray();
-        l = I2BA(buffer.length);
+        //q
+        buffer = q.toByteArray();
+        l = ByteBuffer.allocate(4).putInt(buffer.length).array();
         baos.write(l, 0, l.length);
         baos.write(buffer, 0, buffer.length);
 
-        //primeP
-        buffer = primeP.toByteArray();
-        l = I2BA(buffer.length);
+        //e
+        buffer = e.toByteArray();
+        l = ByteBuffer.allocate(4).putInt(buffer.length).array();
         baos.write(l, 0, l.length);
         baos.write(buffer, 0, buffer.length);
 
-        //primeQ
-        buffer = primeQ.toByteArray();
-        l = I2BA(buffer.length);
+        //d
+        buffer = d.toByteArray();
+        l = ByteBuffer.allocate(4).putInt(buffer.length).array();
         baos.write(l, 0, l.length);
         baos.write(buffer, 0, buffer.length);
 
@@ -154,22 +147,18 @@ public class YarPrivateKey extends YarKey implements RSAPrivateCrtKey {
     }
 
     public boolean equals(Object obj) {
+        if (!super.equals(obj))
+            return false;
+
         if (obj instanceof RSAPrivateCrtKey) {
             RSAPrivateCrtKey key = (RSAPrivateCrtKey) obj;
-
-            return getModulus().equals(key.getModulus()) &&
-                    exponent.equals(key.getPrivateExponent()) &&
-                    publicExponent.equals(key.getPublicExponent()) &&
-                    primeP.equals(key.getPrimeP()) &&
-                    primeQ.equals(key.getPrimeQ()) &&
-                    primeExpP.equals(key.getPrimeExponentP()) &&
-                    primeExpQ.equals(key.getPrimeExponentQ()) &&
-                    qInv.equals(key.getCrtCoefficient());
+            return p.equals(key.getPrimeP())
+                    && q.equals(key.getPrimeQ())
+                    && e.equals(key.getPublicExponent())
+                    && d.equals(key.getPrivateExponent());
         } else if (obj instanceof RSAPrivateKey) {
             RSAPrivateKey key = (RSAPrivateKey) obj;
-
-            return getModulus().equals(key.getModulus()) &&
-                    exponent.equals(key.getPrivateExponent());
+            return d.equals(key.getPrivateExponent());
         }
 
         return false;

@@ -2,19 +2,17 @@ package com.oviron.yar.keys;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 
-import static com.oviron.yar.Util.BA2I;
-import static com.oviron.yar.Util.I2BA;
-
 /**
- * @author: Oviron
+ * @author Oviron
  */
 
 public class YarPublicKey extends YarKey implements RSAPublicKey {
-    public YarPublicKey(BigInteger modulus, BigInteger exponent) {
-        super(modulus, exponent);
+    public YarPublicKey(BigInteger n, BigInteger e) {
+        super(n, e);
     }
 
     public static YarPublicKey valueOf(byte[] encoded) {
@@ -33,26 +31,21 @@ public class YarPublicKey extends YarKey implements RSAPublicKey {
         BigInteger modulus;
         BigInteger exponent;
 
-        //modulus
-        l = BA2I(Arrays.copyOfRange(encoded, i, i + 4));
+        //n
+        l = ByteBuffer.wrap(Arrays.copyOfRange(encoded, i, i + 4)).getInt();
         i += 4;
         buffer = Arrays.copyOfRange(encoded, i, i + l);
         modulus = new BigInteger(buffer);
         i += l;
 
-        //exponent
-        l = BA2I(Arrays.copyOfRange(encoded, i, i + 4));
+        //e
+        l = ByteBuffer.wrap(Arrays.copyOfRange(encoded, i, i + 4)).getInt();
         i += 4;
         buffer = Arrays.copyOfRange(encoded, i, i + l);
         exponent = new BigInteger(buffer);
         i += l;
 
         return new YarPublicKey(modulus, exponent);
-    }
-
-    @Override
-    public BigInteger getPublicExponent() {
-        return exponent;
     }
 
     @Override
@@ -66,15 +59,15 @@ public class YarPublicKey extends YarKey implements RSAPublicKey {
         baos.write(0x41); //A
         baos.write(0x50); //(P)ublic Key
 
-        //modulus
-        buffer = getModulus().toByteArray();
-        l = I2BA(buffer.length);
+        //n
+        buffer = n.toByteArray();
+        l = ByteBuffer.allocate(4).putInt(buffer.length).array();
         baos.write(l, 0, l.length);
         baos.write(buffer, 0, buffer.length);
 
-        //exponent
-        buffer = exponent.toByteArray();
-        l = I2BA(buffer.length);
+        //e
+        buffer = e.toByteArray();
+        l = ByteBuffer.allocate(4).putInt(buffer.length).array();
         baos.write(l, 0, l.length);
         baos.write(buffer, 0, buffer.length);
 
@@ -82,12 +75,8 @@ public class YarPublicKey extends YarKey implements RSAPublicKey {
     }
 
     public boolean equals(Object obj) {
-        if (obj instanceof RSAPublicKey) {
-            RSAPublicKey key = (RSAPublicKey) obj;
-
-            return getPublicExponent().equals(key.getPublicExponent()) && getModulus().equals(key.getModulus());
-        }
-
-        return false;
+        return super.equals(obj)
+                && obj instanceof RSAPublicKey
+                && e.equals(((RSAPublicKey) obj).getPublicExponent());
     }
 }
