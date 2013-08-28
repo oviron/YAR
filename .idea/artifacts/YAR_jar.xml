@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="YAR:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/YAR_jar</output-path>
-    <root id="archive" name="YAR.jar">
-      <element id="module-output" name="YAR" />
-    </root>
-  </artifact>
-</component>
