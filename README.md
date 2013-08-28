@@ -118,5 +118,5 @@ try {
 
 #### YAR: ####
 ```
-boolean result = Yar.verify(kp.getPublicKey(), message, signature, HashMethod.SHA_256)
+boolean result = Yar.verify(message, signature, kp.getPublicKey(), HashMethod.SHA_256)
 ```

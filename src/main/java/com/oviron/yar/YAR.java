@@ -160,21 +160,21 @@ public class Yar {
         return I2OSP(m, k);
     }
 
-    public static boolean verify(RSAPublicKey publicKey, String message, byte[] signature, HashMethod hashMethod) {
-        return verify(publicKey, message.getBytes(), signature, hashMethod);
+    public static boolean verify(String message, byte[] signature, RSAPublicKey publicKey, HashMethod hashMethod) {
+        return verify(message.getBytes(), signature, publicKey, hashMethod);
     }
 
     /**
      * RSASSA-PKCS1-V1_5-VERIFY implementation
      *
-     * @param publicKey  signer’s RSA public key
      * @param message    message whose signature is to be verified, an octet sequence
      * @param signature  signature to be verified, an octet sequence of length k, where k is the
      *                   length in octets of the RSA modulus n
+     * @param publicKey  signer’s RSA public key
      * @param hashMethod specific hash function
      * @return signature authenticity
      */
-    public static boolean verify(RSAPublicKey publicKey, byte[] message, byte[] signature, HashMethod hashMethod) {
+    public static boolean verify(byte[] message, byte[] signature, RSAPublicKey publicKey, HashMethod hashMethod) {
         int k = (publicKey.getModulus().bitLength() + 7) / 8;
 
         //1. Length checking: If the length of the signature S is not k octets,

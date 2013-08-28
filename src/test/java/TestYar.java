@@ -49,36 +49,36 @@ public class TestYar {
     @Test
     public void testSignatureMD2() {
         byte[] signature = Yar.sign(message, privateKey, HashMethod.MD2);
-        Assert.assertTrue(Yar.verify(publicKey, message, signature, HashMethod.MD2));
+        Assert.assertTrue(Yar.verify(message, signature, publicKey, HashMethod.MD2));
     }
 
     @Test
     public void testSignatureMD5() {
         byte[] signature = Yar.sign(message, privateKey, HashMethod.MD5);
-        Assert.assertTrue(Yar.verify(publicKey, message, signature, HashMethod.MD5));
+        Assert.assertTrue(Yar.verify(message, signature, publicKey, HashMethod.MD5));
     }
 
     @Test
     public void testSignatureSHA1() {
         byte[] signature = Yar.sign(message, privateKey, HashMethod.SHA_1);
-        Assert.assertTrue(Yar.verify(publicKey, message, signature, HashMethod.SHA_1));
+        Assert.assertTrue(Yar.verify(message, signature, publicKey, HashMethod.SHA_1));
     }
 
     @Test
     public void testSignatureSHA256() {
         byte[] signature = Yar.sign(message, privateKey, HashMethod.SHA_256);
-        Assert.assertTrue(Yar.verify(publicKey, message, signature, HashMethod.SHA_256));
+        Assert.assertTrue(Yar.verify(message, signature, publicKey, HashMethod.SHA_256));
     }
 
     @Test
     public void testSignatureSHA384() {
         byte[] signature = Yar.sign(message, privateKey, HashMethod.SHA_384);
-        Assert.assertTrue(Yar.verify(publicKey, message, signature, HashMethod.SHA_384));
+        Assert.assertTrue(Yar.verify(message, signature, publicKey, HashMethod.SHA_384));
     }
 
     @Test
     public void testSignatureSHA512() {
         byte[] signature = Yar.sign(message, privateKey, HashMethod.SHA_512);
-        Assert.assertTrue(Yar.verify(publicKey, message, signature, HashMethod.SHA_512));
+        Assert.assertTrue(Yar.verify(message, signature, publicKey, HashMethod.SHA_512));
     }
 }
